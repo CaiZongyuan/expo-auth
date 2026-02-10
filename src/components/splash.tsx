@@ -1,14 +1,18 @@
 import { SplashScreen } from 'expo-router';
-import { useSession } from '../context/ctx';
+import { useEffect } from 'react';
 
-SplashScreen.preventAutoHideAsync();
+import { useAuthStore } from '@/src/features/auth/auth.store';
+
+SplashScreen.preventAutoHideAsync().catch(() => null);
 
 export function SplashScreenController() {
-  const { isLoading } = useSession();
+  const status = useAuthStore((s) => s.status);
 
-  if (!isLoading) {
-    SplashScreen.hide();
-  }
+  useEffect(() => {
+    if (status !== 'booting') {
+      SplashScreen.hideAsync().catch(() => null);
+    }
+  }, [status]);
 
   return null;
 }

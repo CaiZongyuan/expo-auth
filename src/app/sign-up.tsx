@@ -3,47 +3,60 @@ import { Link, router } from 'expo-router';
 import { Controller, useForm } from 'react-hook-form';
 import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
-import { signInSchema, type SignInForm } from '@/src/features/auth/auth.schemas';
+import { signUpSchema, type SignUpForm } from '@/src/features/auth/auth.schemas';
 import { useAuthStore } from '@/src/features/auth/auth.store';
 import { getApiErrorMessage } from '@/src/lib/api/errors';
 
-export default function SignIn() {
-  const signIn = useAuthStore((s) => s.signIn);
+export default function SignUp() {
+  const signUp = useAuthStore((s) => s.signUp);
 
   const {
     control,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<SignInForm>({
-    resolver: zodResolver(signInSchema),
-    defaultValues: { usernameOrEmail: '', password: '' },
+  } = useForm<SignUpForm>({
+    resolver: zodResolver(signUpSchema),
+    defaultValues: { name: '', username: '', email: '', password: '' },
   });
 
   const onSubmit = handleSubmit(async (values) => {
     try {
-      await signIn(values.usernameOrEmail, values.password);
+      await signUp(values);
       router.replace('/');
     } catch (error) {
-      const message = getApiErrorMessage(error);
-      // Keep it simple for now; page-level error is enough.
-      Alert.alert('Sign in failed', message);
+      Alert.alert('Sign up failed', getApiErrorMessage(error));
     }
   });
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Sign In</Text>
+      <Text style={styles.title}>Sign Up</Text>
 
       <Controller
         control={control}
-        name="usernameOrEmail"
+        name="name"
         render={({ field: { onChange, onBlur, value } }) => (
           <TextInput
             style={styles.input}
-            placeholder="Username or Email"
+            placeholder="Name"
+            textContentType="name"
+            value={value}
+            onBlur={onBlur}
+            onChangeText={onChange}
+          />
+        )}
+      />
+      {errors.name ? <Text style={styles.error}>{errors.name.message}</Text> : null}
+
+      <Controller
+        control={control}
+        name="username"
+        render={({ field: { onChange, onBlur, value } }) => (
+          <TextInput
+            style={styles.input}
+            placeholder="Username (lowercase letters & numbers)"
             autoCapitalize="none"
             autoCorrect={false}
-            keyboardType="email-address"
             textContentType="username"
             value={value}
             onBlur={onBlur}
@@ -51,7 +64,26 @@ export default function SignIn() {
           />
         )}
       />
-      {errors.usernameOrEmail ? <Text style={styles.error}>{errors.usernameOrEmail.message}</Text> : null}
+      {errors.username ? <Text style={styles.error}>{errors.username.message}</Text> : null}
+
+      <Controller
+        control={control}
+        name="email"
+        render={({ field: { onChange, onBlur, value } }) => (
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            autoCapitalize="none"
+            autoCorrect={false}
+            keyboardType="email-address"
+            textContentType="emailAddress"
+            value={value}
+            onBlur={onBlur}
+            onChangeText={onChange}
+          />
+        )}
+      />
+      {errors.email ? <Text style={styles.error}>{errors.email.message}</Text> : null}
 
       <Controller
         control={control}
@@ -61,7 +93,7 @@ export default function SignIn() {
             style={styles.input}
             placeholder="Password"
             secureTextEntry
-            textContentType="password"
+            textContentType="newPassword"
             value={value}
             onBlur={onBlur}
             onChangeText={onChange}
@@ -71,11 +103,11 @@ export default function SignIn() {
       {errors.password ? <Text style={styles.error}>{errors.password.message}</Text> : null}
 
       <Pressable style={[styles.button, isSubmitting && styles.buttonDisabled]} onPress={onSubmit} disabled={isSubmitting}>
-        {isSubmitting ? <ActivityIndicator /> : <Text style={styles.buttonText}>Sign In</Text>}
+        {isSubmitting ? <ActivityIndicator /> : <Text style={styles.buttonText}>Create Account</Text>}
       </Pressable>
 
-      <Link href="./sign-up" style={styles.link}>
-        No account? Sign Up
+      <Link href="/sign-in" style={styles.link}>
+        Already have an account? Sign In
       </Link>
     </View>
   );
@@ -124,3 +156,4 @@ const styles = StyleSheet.create({
     color: '#2563eb',
   },
 });
+
