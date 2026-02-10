@@ -3,7 +3,7 @@ function requiredEnv(name: string): string {
   const value = process.env[name];
   if (!value) {
     throw new Error(
-      `[env] Missing ${name}. Set it in .env (Expo Go 真机请使用局域网 IP，而不是 localhost).`,
+      `[env] Missing ${name}. Set it in .env (Expo Go Please use true IP, rather than localhost).`,
     );
   }
   return value;
